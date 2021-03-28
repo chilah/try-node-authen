@@ -6,12 +6,6 @@ import User, { IUser, UserDocument } from '../models/User';
 const router = express.Router();
 
 router.post('/user', async (req: Request, res: Response) => {
-    const isEmailExist: Document<any> | null = await User.findOne({ email: req.body.email });
-
-    if (isEmailExist) {
-        return res.status(403).send({ message: 'Your email is existed' });
-    }
-
     const user = new User(req.body);
 
     try {

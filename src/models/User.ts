@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, Model, model, Schema } from 'mongoose';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -41,11 +41,19 @@ export interface UserDocument extends IUser, Document {
     generateToken(): void;
 }
 
+interface UserModel extends Model<UserDocument> {
+    findByAuthen(user: IUser): Promise<UserDocument>;
+}
+
 UserSchemaFields.methods.generateToken = function () {
     const user = this;
     const token = jwt.sign({ id: user._id.toString() }, 'tryn0d3');
 
     console.log(token);
+};
+
+UserSchemaFields.statics.findByAuthen = async function ({ email, password }: IUser) {
+    console.log(email);
 };
 
 UserSchemaFields.pre<UserDocument>('save', async function (next) {
