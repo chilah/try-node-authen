@@ -2,16 +2,19 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { userRouter } from './src/router';
 
+// read variable from .env file
+import 'dotenv/config';
+
 // rest of the code remains same
 const app: express.Application = express();
-const PORT = 8000;
-
+const PORT = process.env.PORT;
+const mongoURL = process.env.MONGO_URI!;
 app.use(express.json());
 
 app.use(userRouter);
 
 mongoose
-    .connect('mongodb+srv://learn-mongo:learn-mongo@cluster0.qdzps.mongodb.net/shopping-db', {
+    .connect(mongoURL, {
         useNewUrlParser: true,
         useCreateIndex: true,
         useFindAndModify: false,
