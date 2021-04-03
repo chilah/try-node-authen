@@ -3,7 +3,7 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const UserSchemaFields = new Schema({
+const UserSchemaFields = new Schema<UserDocument, UserModel>({
     email: {
         type: String,
         required: true,
@@ -31,25 +31,28 @@ const UserSchemaFields = new Schema({
     ],
 });
 
-export interface IUser extends Document {
+export interface IUser {
     email: string;
     password: string;
-    tokens: string[];
+    tokens: { token: string }[];
 }
 
 export interface UserDocument extends IUser, Document {
-    generateToken(): void;
+    generateToken(): Promise<string>;
 }
 
 interface UserModel extends Model<UserDocument> {
     findByAuthen(user: IUser): Promise<UserDocument>;
 }
 
-UserSchemaFields.methods.generateToken = function () {
+UserSchemaFields.methods.generateToken = async function () {
     const user = this;
     const token = jwt.sign({ id: user._id.toString() }, 'tryn0d3');
 
-    console.log(token);
+    user.tokens = [...user.tokens, { token }];
+    await user.save();
+
+    return token;
 };
 
 UserSchemaFields.statics.findByAuthen = async function ({ email, password }: IUser) {
@@ -66,6 +69,6 @@ UserSchemaFields.pre<UserDocument>('save', async function (next) {
     next();
 });
 
-const User = model<UserDocument>('User', UserSchemaFields);
+const User = model<UserDocument, UserModel>('User', UserSchemaFields);
 
 export default User;
