@@ -24,9 +24,17 @@ router.get('/user', async (req, res) => {
 });
 
 router.post('/user/login', async (req: Request, res: Response) => {
-    const user = await User.findOne({ email: req.body.email });
+    try {
+        const user = await User.findByAuthen(req.body);
+        const token = await user.generateToken();
+        const userProfile = user.generateUserProfile();
 
-    res.send(user);
+        res.send({ profile: userProfile, token });
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
 });
+
+router.get('/user/me', async (req: Request, res: Response) => {});
 
 export default router;

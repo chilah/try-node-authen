@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, model, Schema, deleteModel } from 'mongoose';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -39,6 +39,7 @@ export interface IUser {
 
 export interface UserDocument extends IUser, Document {
     generateToken(): Promise<string>;
+    generateUserProfile(): IUser;
 }
 
 interface UserModel extends Model<UserDocument> {
@@ -55,8 +56,26 @@ UserSchemaFields.methods.generateToken = async function () {
     return token;
 };
 
-UserSchemaFields.statics.findByAuthen = async function ({ email, password }: IUser) {
-    console.log(email);
+UserSchemaFields.methods.generateUserProfile = function () {
+    const user = this;
+
+    return {
+        email: this.email,
+    };
+};
+
+UserSchemaFields.statics.findByAuthen = async ({ email, password }: IUser) => {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new Error('Unable to login');
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) throw new Error('Unable to login');
+
+    return user;
 };
 
 UserSchemaFields.pre<UserDocument>('save', async function (next) {
