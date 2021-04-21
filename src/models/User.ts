@@ -1,9 +1,17 @@
-import { Document, Model, model, Schema, deleteModel } from 'mongoose';
+import { Document, Model, model, Schema, deleteModel, LeanDocument } from 'mongoose';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 const UserSchemaFields = new Schema<UserDocument, UserModel>({
+    firstname: {
+        type: String,
+        trim: true,
+    },
+    lastname: {
+        type: String,
+        trim: true,
+    },
     email: {
         type: String,
         required: true,
@@ -32,6 +40,8 @@ const UserSchemaFields = new Schema<UserDocument, UserModel>({
 });
 
 export interface IUser {
+    firstname: string;
+    lastname: string;
     email: string;
     password: string;
     tokens: { token: string }[];
@@ -39,7 +49,6 @@ export interface IUser {
 
 export interface UserDocument extends IUser, Document {
     generateToken(): Promise<string>;
-    generateUserProfile(): IUser;
 }
 
 interface UserModel extends Model<UserDocument> {
@@ -54,14 +63,6 @@ UserSchemaFields.methods.generateToken = async function () {
     await user.save();
 
     return token;
-};
-
-UserSchemaFields.methods.generateUserProfile = function () {
-    const user = this;
-
-    return {
-        email: this.email,
-    };
 };
 
 UserSchemaFields.statics.findByAuthen = async ({ email, password }: IUser) => {

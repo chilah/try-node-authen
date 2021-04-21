@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { userRouter } from './src/router';
+import { userRouter } from './router';
 
 // read variable from .env file
 import 'dotenv/config';
