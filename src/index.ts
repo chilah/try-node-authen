@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { userRouter } from './router';
+import { userRouter, taskRouter } from './router';
 
 // read variable from .env file
 import 'dotenv/config';
@@ -12,6 +12,7 @@ const mongoURL = process.env.MONGO_URI!;
 app.use(express.json());
 
 app.use(userRouter);
+app.use(taskRouter);
 
 mongoose
     .connect(mongoURL, {
