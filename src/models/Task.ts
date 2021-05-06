@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema, deleteModel, LeanDocument } from 'mongoose';
 
-const TaskSchemaFields = new Schema<ITaskModel>({
+const TaskSchemaFields = new Schema<TaskDocument, TaskModel>({
     task: {
         type: String,
         required: true,
@@ -10,15 +10,23 @@ const TaskSchemaFields = new Schema<ITaskModel>({
         type: Boolean,
         default: false,
     },
+    owner: {
+        type: Schema.Types.ObjectId,
+        require: true,
+        ref: 'User',
+    },
 });
 
 export interface ITask {
     task: string;
     complete: boolean;
+    owner: string;
 }
 
-export interface ITaskModel extends ITask, Document {}
+export interface TaskDocument extends ITask, Document {}
 
-const Task = model<ITaskModel>('Task', TaskSchemaFields);
+export interface TaskModel extends Model<TaskDocument> {}
+
+const Task = model<TaskDocument, TaskModel>('Task', TaskSchemaFields);
 
 export default Task;
