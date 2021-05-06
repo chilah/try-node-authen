@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema, deleteModel, LeanDocument } from 'mongoose';
+import { Document, Model, model, Schema, deleteModel, LeanDocument, VirtualType } from 'mongoose';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -49,11 +49,18 @@ export interface IUser {
 
 export interface UserDocument extends IUser, Document {
     generateToken(): Promise<string>;
+    tasks: VirtualType;
 }
 
 interface UserModel extends Model<UserDocument> {
     findByAuthen(user: IUser): Promise<UserDocument>;
 }
+
+UserSchemaFields.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner',
+});
 
 UserSchemaFields.methods.generateToken = async function () {
     const user = this;
